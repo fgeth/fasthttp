@@ -1697,7 +1697,7 @@ func (h *ResponseHeader) AppendBytes(dst []byte) []byte {
 	if n > 0 {
 		for i := 0; i < n; i++ {
 			kv := &h.cookies[i]
-			dst = appendHeaderLine(dst, strSetCookie, kv.value)
+			dst = appendHeaderLine(dst, strSetCookie, kv.Value)
 		}
 	}
 
@@ -1991,7 +1991,7 @@ func (h *ResponseHeader) parseHeaders(buf []byte) (int, error) {
 						h.connectionClose = true
 					} else {
 						h.connectionClose = false
-						h.h = appendArgBytes(h.h, s.Key, s.Value, argsHasValue)
+						h.h = appendArgBytes(h.h, s.key, s.value, argsHasValue)
 					}
 					continue
 				}
@@ -2132,8 +2132,8 @@ func (h *RequestHeader) collectCookies() {
 
 	for i, n := 0, len(h.h); i < n; i++ {
 		kv := &h.h[i]
-		if caseInsensitiveCompare(kv.key, strCookie) {
-			h.cookies = parseRequestCookies(h.cookies, kv.value)
+		if caseInsensitiveCompare(kv.Key, strCookie) {
+			h.cookies = parseRequestCookies(h.cookies, kv.Value)
 			tmp := *kv
 			copy(h.h[i:], h.h[i+1:])
 			n--
@@ -2342,16 +2342,16 @@ func nextLine(b []byte) ([]byte, []byte, error) {
 }
 
 func initHeaderKV(kv *ArgsKV, key, value string, disableNormalizing bool) {
-	kv.key = getHeaderKeyBytes(kv, key, disableNormalizing)
+	kv.Key = getHeaderKeyBytes(kv, key, disableNormalizing)
 	// https://tools.ietf.org/html/rfc7230#section-3.2.4
-	kv.value = append(kv.value[:0], value...)
-	kv.value = removeNewLines(kv.value)
+	kv.Value = append(kv.Value[:0], value...)
+	kv.Value = removeNewLines(kv.value)
 }
 
 func getHeaderKeyBytes(kv *ArgsKV, key string, disableNormalizing bool) []byte {
-	kv.key = append(kv.key[:0], key...)
-	normalizeHeaderKey(kv.key, disableNormalizing)
-	return kv.key
+	kv.Key = append(kv.Key[:0], key...)
+	normalizeHeaderKey(kv.Key, disableNormalizing)
+	return kv.Key
 }
 
 func normalizeHeaderValue(ov, ob []byte, headerLength int) (nv, nb []byte, nhl int) {
