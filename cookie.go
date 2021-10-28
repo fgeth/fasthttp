@@ -349,8 +349,8 @@ func (c *Cookie) ParseBytes(src []byte) error {
 		return errNoCookies
 	}
 
-	c.Key = append(c.Key, kv.Key...)
-	c.value = append(c.value, kv.value...)
+	c.key = append(c.key, kv.Key...)
+	c.value = append(c.value, kv.Value...)
 
 	for s.next(kv) {
 		if len(kv.key) != 0 {
