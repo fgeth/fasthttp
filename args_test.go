@@ -600,7 +600,7 @@ func TestArgsDeleteAll(t *testing.T) {
 
 func TestIssue932(t *testing.T) {
 	t.Parallel()
-	var a []argsKV
+	var a []ArgsKV
 
 	a = setArg(a, "t1", "ok", argsHasValue)
 	a = setArg(a, "t2", "", argsHasValue)

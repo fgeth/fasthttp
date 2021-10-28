@@ -46,7 +46,7 @@ var argsPool = &sync.Pool{
 type Args struct {
 	noCopy noCopy //nolint:unused,structcheck
 
-	args []argsKV
+	args []ArgsKV
 	buf  []byte
 }
 
@@ -93,7 +93,7 @@ func (a *Args) ParseBytes(b []byte) {
 	var s argsScanner
 	s.b = b
 
-	var kv *argsKV
+	var kv *ArgsKV
 	a.args, kv = allocArg(a.args)
 	for s.next(kv) {
 		if len(kv.key) > 0 || len(kv.value) > 0 {
@@ -354,16 +354,16 @@ func (a *Args) GetBool(key string) bool {
 	}
 }
 
-func visitArgs(args []argsKV, f func(k, v []byte)) {
+func visitArgs(args []ArgsKV, f func(k, v []byte)) {
 	for i, n := 0, len(args); i < n; i++ {
 		kv := &args[i]
 		f(kv.key, kv.value)
 	}
 }
 
-func copyArgs(dst, src []argsKV) []argsKV {
+func copyArgs(dst, src []ArgsKV) []ArgsKV {
 	if cap(dst) < len(src) {
-		tmp := make([]argsKV, len(src))
+		tmp := make([]ArgsKV, len(src))
 		dst = dst[:cap(dst)] // copy all of dst.
 		copy(tmp, dst)
 		for i := len(dst); i < len(tmp); i++ {
@@ -389,11 +389,11 @@ func copyArgs(dst, src []argsKV) []argsKV {
 	return dst
 }
 
-func delAllArgsBytes(args []argsKV, key []byte) []argsKV {
+func delAllArgsBytes(args []ArgsKV, key []byte) []ArgsKV {
 	return delAllArgs(args, b2s(key))
 }
 
-func delAllArgs(args []argsKV, key string) []argsKV {
+func delAllArgs(args []ArgsKV, key string) []ArgsKV {
 	for i, n := 0, len(args); i < n; i++ {
 		kv := &args[i]
 		if key == string(kv.key) {
@@ -408,11 +408,11 @@ func delAllArgs(args []argsKV, key string) []argsKV {
 	return args
 }
 
-func setArgBytes(h []argsKV, key, value []byte, noValue bool) []argsKV {
+func setArgBytes(h []ArgsKV, key, value []byte, noValue bool) []ArgsKV {
 	return setArg(h, b2s(key), b2s(value), noValue)
 }
 
-func setArg(h []argsKV, key, value string, noValue bool) []argsKV {
+func setArg(h []ArgsKV, key, value string, noValue bool) []ArgsKV {
 	n := len(h)
 	for i := 0; i < n; i++ {
 		kv := &h[i]
@@ -429,12 +429,12 @@ func setArg(h []argsKV, key, value string, noValue bool) []argsKV {
 	return appendArg(h, key, value, noValue)
 }
 
-func appendArgBytes(h []argsKV, key, value []byte, noValue bool) []argsKV {
+func appendArgBytes(h []ArgsKV, key, value []byte, noValue bool) []ArgsKV {
 	return appendArg(h, b2s(key), b2s(value), noValue)
 }
 
-func appendArg(args []argsKV, key, value string, noValue bool) []argsKV {
-	var kv *argsKV
+func appendArg(args []ArgsKV, key, value string, noValue bool) []ArgsKV {
+	var kv *ArgsKV
 	args, kv = allocArg(args)
 	kv.key = append(kv.key[:0], key...)
 	if noValue {
@@ -446,23 +446,23 @@ func appendArg(args []argsKV, key, value string, noValue bool) []argsKV {
 	return args
 }
 
-func allocArg(h []argsKV) ([]argsKV, *argsKV) {
+func allocArg(h []ArgsKV) ([]ArgsKV, *ArgsKV) {
 	n := len(h)
 	if cap(h) > n {
 		h = h[:n+1]
 	} else {
-		h = append(h, argsKV{
+		h = append(h, ArgsKV{
 			value: []byte{},
 		})
 	}
 	return h, &h[n]
 }
 
-func releaseArg(h []argsKV) []argsKV {
+func releaseArg(h []ArgsKV) []ArgsKV {
 	return h[:len(h)-1]
 }
 
-func hasArg(h []argsKV, key string) bool {
+func hasArg(h []ArgsKV, key string) bool {
 	for i, n := 0, len(h); i < n; i++ {
 		kv := &h[i]
 		if key == string(kv.key) {
@@ -472,7 +472,7 @@ func hasArg(h []argsKV, key string) bool {
 	return false
 }
 
-func peekArgBytes(h []argsKV, k []byte) []byte {
+func peekArgBytes(h []ArgsKV, k []byte) []byte {
 	for i, n := 0, len(h); i < n; i++ {
 		kv := &h[i]
 		if bytes.Equal(kv.key, k) {
@@ -482,7 +482,7 @@ func peekArgBytes(h []argsKV, k []byte) []byte {
 	return nil
 }
 
-func peekArgStr(h []argsKV, k string) []byte {
+func peekArgStr(h []ArgsKV, k string) []byte {
 	for i, n := 0, len(h); i < n; i++ {
 		kv := &h[i]
 		if string(kv.key) == k {
@@ -496,7 +496,7 @@ type argsScanner struct {
 	b []byte
 }
 
-func (s *argsScanner) next(kv *argsKV) bool {
+func (s *argsScanner) next(kv *ArgsKV) bool {
 	if len(s.b) == 0 {
 		return false
 	}

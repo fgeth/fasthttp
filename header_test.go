@@ -1203,8 +1203,8 @@ func TestResponseHeaderCopyTo(t *testing.T) {
 	}
 
 	// flush buf
-	h.bufKV = argsKV{}
-	h1.bufKV = argsKV{}
+	h.bufKV = ArgsKV{}
+	h1.bufKV = ArgsKV{}
 
 	if !reflect.DeepEqual(h, h1) { //nolint:govet
 		t.Fatalf("ResponseHeaderCopyTo fail, src: \n%+v\ndst: \n%+v\n", h, h1) //nolint:govet
@@ -1237,8 +1237,8 @@ func TestRequestHeaderCopyTo(t *testing.T) {
 	}
 
 	// flush buf
-	h.bufKV = argsKV{}
-	h1.bufKV = argsKV{}
+	h.bufKV = ArgsKV{}
+	h1.bufKV = ArgsKV{}
 
 	if !reflect.DeepEqual(h, h1) { //nolint:govet
 		t.Fatalf("RequestHeaderCopyTo fail, src: \n%+v\ndst: \n%+v\n", h, h1) //nolint:govet

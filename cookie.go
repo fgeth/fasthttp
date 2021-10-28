@@ -78,7 +78,7 @@ type Cookie struct {
 	secure   bool
 	sameSite CookieSameSite
 
-	bufKV argsKV
+	bufKV ArgsKV
 	buf   []byte
 }
 
@@ -447,7 +447,7 @@ func getCookieKey(dst, src []byte) []byte {
 	return decodeCookieArg(dst, src, false)
 }
 
-func appendRequestCookieBytes(dst []byte, cookies []argsKV) []byte {
+func appendRequestCookieBytes(dst []byte, cookies []ArgsKV) []byte {
 	for i, n := 0, len(cookies); i < n; i++ {
 		kv := &cookies[i]
 		if len(kv.key) > 0 {
@@ -464,7 +464,7 @@ func appendRequestCookieBytes(dst []byte, cookies []argsKV) []byte {
 
 // For Response we can not use the above function as response cookies
 // already contain the key= in the value.
-func appendResponseCookieBytes(dst []byte, cookies []argsKV) []byte {
+func appendResponseCookieBytes(dst []byte, cookies []ArgsKV) []byte {
 	for i, n := 0, len(cookies); i < n; i++ {
 		kv := &cookies[i]
 		dst = append(dst, kv.value...)
@@ -475,10 +475,10 @@ func appendResponseCookieBytes(dst []byte, cookies []argsKV) []byte {
 	return dst
 }
 
-func parseRequestCookies(cookies []argsKV, src []byte) []argsKV {
+func parseRequestCookies(cookies []ArgsKV, src []byte) []ArgsKV {
 	var s cookieScanner
 	s.b = src
-	var kv *argsKV
+	var kv *ArgsKV
 	cookies, kv = allocArg(cookies)
 	for s.next(kv) {
 		if len(kv.key) > 0 || len(kv.value) > 0 {
@@ -492,7 +492,7 @@ type cookieScanner struct {
 	b []byte
 }
 
-func (s *cookieScanner) next(kv *argsKV) bool {
+func (s *cookieScanner) next(kv *ArgsKV) bool {
 	b := s.b
 	if len(b) == 0 {
 		return false

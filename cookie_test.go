@@ -390,13 +390,13 @@ func TestAppendRequestCookieBytes(t *testing.T) {
 
 func testAppendRequestCookieBytes(t *testing.T, s, expectedS string) {
 	kvs := strings.Split(s, "&")
-	cookies := make([]argsKV, 0, len(kvs))
+	cookies := make([]ArgsKV, 0, len(kvs))
 	for _, ss := range kvs {
 		tmp := strings.SplitN(ss, "=", 2)
 		if len(tmp) != 2 {
 			t.Fatalf("Cannot find '=' in %q, part of %q", ss, s)
 		}
-		cookies = append(cookies, argsKV{
+		cookies = append(cookies, ArgsKV{
 			key:   []byte(tmp[0]),
 			value: []byte(tmp[1]),
 		})

@@ -41,10 +41,10 @@ type ResponseHeader struct {
 	contentType []byte
 	server      []byte
 
-	h     []argsKV
-	bufKV argsKV
+	h     []ArgsKV
+	bufKV ArgsKV
 
-	cookies []argsKV
+	cookies []ArgsKV
 }
 
 // RequestHeader represents HTTP request header.
@@ -76,10 +76,10 @@ type RequestHeader struct {
 	contentType []byte
 	userAgent   []byte
 
-	h     []argsKV
-	bufKV argsKV
+	h     []ArgsKV
+	bufKV ArgsKV
 
-	cookies []argsKV
+	cookies []ArgsKV
 
 	// stores an immutable copy of headers as they were received from the
 	// wire.
@@ -968,7 +968,7 @@ func (h *ResponseHeader) setSpecialHeader(key, value []byte) bool {
 			h.SetServerBytes(value)
 			return true
 		} else if caseInsensitiveCompare(strSetCookie, key) {
-			var kv *argsKV
+			var kv *ArgsKV
 			h.cookies, kv = allocArg(h.cookies)
 			kv.key = getCookieKey(kv.key, value)
 			kv.value = append(kv.value[:0], value...)
@@ -1967,7 +1967,7 @@ func (h *ResponseHeader) parseHeaders(buf []byte) (int, error) {
 	s.b = buf
 	s.disableNormalizing = h.disableNormalizing
 	var err error
-	var kv *argsKV
+	var kv *ArgsKV
 	for s.next() {
 		if len(s.key) > 0 {
 			switch s.key[0] | 0x20 {
@@ -2341,14 +2341,14 @@ func nextLine(b []byte) ([]byte, []byte, error) {
 	return b[:n], b[nNext+1:], nil
 }
 
-func initHeaderKV(kv *argsKV, key, value string, disableNormalizing bool) {
+func initHeaderKV(kv *ArgsKV, key, value string, disableNormalizing bool) {
 	kv.key = getHeaderKeyBytes(kv, key, disableNormalizing)
 	// https://tools.ietf.org/html/rfc7230#section-3.2.4
 	kv.value = append(kv.value[:0], value...)
 	kv.value = removeNewLines(kv.value)
 }
 
-func getHeaderKeyBytes(kv *argsKV, key string, disableNormalizing bool) []byte {
+func getHeaderKeyBytes(kv *ArgsKV, key string, disableNormalizing bool) []byte {
 	kv.key = append(kv.key[:0], key...)
 	normalizeHeaderKey(kv.key, disableNormalizing)
 	return kv.key
