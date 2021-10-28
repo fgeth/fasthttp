@@ -10,7 +10,7 @@ import (
 	"sync/atomic"
 	"time"
 )
-
+//update
 const (
 	rChar = byte('\r')
 	nChar = byte('\n')
