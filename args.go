@@ -46,25 +46,25 @@ var argsPool = &sync.Pool{
 type Args struct {
 	noCopy noCopy //nolint:unused,structcheck
 
-	args []ArgsKV
-	buf  []byte
+	Args []ArgsKV
+	Buf  []byte
 }
 
 type ArgsKV struct {
-	key     []byte
-	value   []byte
+	Key     []byte
+	Value   []byte
 	noValue bool
 }
 
 // Reset clears query args.
 func (a *Args) Reset() {
-	a.args = a.args[:0]
+	a.Args = a.Args[:0]
 }
 
 // CopyTo copies all args to dst.
 func (a *Args) CopyTo(dst *Args) {
 	dst.Reset()
-	dst.args = copyArgs(dst.args, a.args)
+	dst.Args = copyArgs(dst.Args, a.Args)
 }
 
 // VisitAll calls f for each existing arg.
@@ -72,12 +72,12 @@ func (a *Args) CopyTo(dst *Args) {
 // f must not retain references to key and value after returning.
 // Make key and/or value copies if you need storing them after returning.
 func (a *Args) VisitAll(f func(key, value []byte)) {
-	visitArgs(a.args, f)
+	visitArgs(a.Args, f)
 }
 
 // Len returns the number of query args.
 func (a *Args) Len() int {
-	return len(a.args)
+	return len(a.Args)
 }
 
 // Parse parses the given string containing query args.
@@ -94,13 +94,13 @@ func (a *Args) ParseBytes(b []byte) {
 	s.b = b
 
 	var kv *ArgsKV
-	a.args, kv = allocArg(a.args)
+	a.Args, kv = allocArg(a.Args)
 	for s.next(kv) {
 		if len(kv.key) > 0 || len(kv.value) > 0 {
-			a.args, kv = allocArg(a.args)
+			a.Args, kv = allocArg(a.Args)
 		}
 	}
-	a.args = releaseArg(a.args)
+	a.Args = releaseArg(a.Args)
 }
 
 // String returns string representation of query args.
@@ -113,8 +113,8 @@ func (a *Args) String() string {
 // The returned value is valid until the Args is reused or released (ReleaseArgs).
 // Do not store references to the returned value. Make copies instead.
 func (a *Args) QueryString() []byte {
-	a.buf = a.AppendBytes(a.buf[:0])
-	return a.buf
+	a.Buf = a.AppendBytes(a.Buf[:0])
+	return a.Buf
 }
 
 // Sort sorts Args by key and then value using 'f' as comparison function.
@@ -122,9 +122,9 @@ func (a *Args) QueryString() []byte {
 // For example args.Sort(bytes.Compare)
 func (a *Args) Sort(f func(x, y []byte) int) {
 	sort.SliceStable(a.args, func(i, j int) bool {
-		n := f(a.args[i].key, a.args[j].key)
+		n := f(a.Args[i].Key, a.Args[j].Key)
 		if n == 0 {
-			return f(a.args[i].value, a.args[j].value) == -1
+			return f(a.Args[i].Value, a.Args[j].Value) == -1
 		}
 		return n == -1
 	})
@@ -132,13 +132,13 @@ func (a *Args) Sort(f func(x, y []byte) int) {
 
 // AppendBytes appends query string to dst and returns the extended dst.
 func (a *Args) AppendBytes(dst []byte) []byte {
-	for i, n := 0, len(a.args); i < n; i++ {
-		kv := &a.args[i]
-		dst = AppendQuotedArg(dst, kv.key)
-		if !kv.noValue {
+	for i, n := 0, len(a.Args); i < n; i++ {
+		kv := &a.Args[i]
+		dst = AppendQuotedArg(dst, kv.Key)
+		if !kv.NoValue {
 			dst = append(dst, '=')
-			if len(kv.value) > 0 {
-				dst = AppendQuotedArg(dst, kv.value)
+			if len(kv.Value) > 0 {
+				dst = AppendQuotedArg(dst, kv.Value)
 			}
 		}
 		if i+1 < n {
@@ -158,86 +158,86 @@ func (a *Args) WriteTo(w io.Writer) (int64, error) {
 
 // Del deletes argument with the given key from query args.
 func (a *Args) Del(key string) {
-	a.args = delAllArgs(a.args, key)
+	a.Args = delAllArgs(a.Args, key)
 }
 
 // DelBytes deletes argument with the given key from query args.
 func (a *Args) DelBytes(key []byte) {
-	a.args = delAllArgs(a.args, b2s(key))
+	a.Args = delAllArgs(a.Args, b2s(key))
 }
 
 // Add adds 'key=value' argument.
 //
 // Multiple values for the same key may be added.
 func (a *Args) Add(key, value string) {
-	a.args = appendArg(a.args, key, value, argsHasValue)
+	a.Args = appendArg(a.Args, key, value, argsHasValue)
 }
 
 // AddBytesK adds 'key=value' argument.
 //
 // Multiple values for the same key may be added.
 func (a *Args) AddBytesK(key []byte, value string) {
-	a.args = appendArg(a.args, b2s(key), value, argsHasValue)
+	a.Args = appendArg(a.Args, b2s(key), value, argsHasValue)
 }
 
 // AddBytesV adds 'key=value' argument.
 //
 // Multiple values for the same key may be added.
 func (a *Args) AddBytesV(key string, value []byte) {
-	a.args = appendArg(a.args, key, b2s(value), argsHasValue)
+	a.Args = appendArg(a.Args, key, b2s(value), argsHasValue)
 }
 
 // AddBytesKV adds 'key=value' argument.
 //
 // Multiple values for the same key may be added.
 func (a *Args) AddBytesKV(key, value []byte) {
-	a.args = appendArg(a.args, b2s(key), b2s(value), argsHasValue)
+	a.Args = appendArg(a.Args, b2s(key), b2s(value), argsHasValue)
 }
 
 // AddNoValue adds only 'key' as argument without the '='.
 //
 // Multiple values for the same key may be added.
 func (a *Args) AddNoValue(key string) {
-	a.args = appendArg(a.args, key, "", argsNoValue)
+	a.Args = appendArg(a.Args, key, "", argsNoValue)
 }
 
 // AddBytesKNoValue adds only 'key' as argument without the '='.
 //
 // Multiple values for the same key may be added.
 func (a *Args) AddBytesKNoValue(key []byte) {
-	a.args = appendArg(a.args, b2s(key), "", argsNoValue)
+	a.Args = appendArg(a.Args, b2s(key), "", argsNoValue)
 }
 
 // Set sets 'key=value' argument.
 func (a *Args) Set(key, value string) {
-	a.args = setArg(a.args, key, value, argsHasValue)
+	a.Args = setArg(a.Args, key, value, argsHasValue)
 }
 
 // SetBytesK sets 'key=value' argument.
 func (a *Args) SetBytesK(key []byte, value string) {
-	a.args = setArg(a.args, b2s(key), value, argsHasValue)
+	a.Args = setArg(a.Args, b2s(key), value, argsHasValue)
 }
 
 // SetBytesV sets 'key=value' argument.
 func (a *Args) SetBytesV(key string, value []byte) {
-	a.args = setArg(a.args, key, b2s(value), argsHasValue)
+	a.Args = setArg(a.aAgs, key, b2s(value), argsHasValue)
 }
 
 // SetBytesKV sets 'key=value' argument.
 func (a *Args) SetBytesKV(key, value []byte) {
-	a.args = setArgBytes(a.args, key, value, argsHasValue)
+	a.Args = setArgBytes(a.Args, key, value, argsHasValue)
 }
 
 // SetNoValue sets only 'key' as argument without the '='.
 //
 // Only key in argumemt, like key1&key2
 func (a *Args) SetNoValue(key string) {
-	a.args = setArg(a.args, key, "", argsNoValue)
+	a.Args = setArg(a.Args, key, "", argsNoValue)
 }
 
 // SetBytesKNoValue sets 'key' argument.
 func (a *Args) SetBytesKNoValue(key []byte) {
-	a.args = setArg(a.args, b2s(key), "", argsNoValue)
+	a.Args = setArg(a.Args, b2s(key), "", argsNoValue)
 }
 
 // Peek returns query arg value for the given key.
@@ -245,7 +245,7 @@ func (a *Args) SetBytesKNoValue(key []byte) {
 // The returned value is valid until the Args is reused or released (ReleaseArgs).
 // Do not store references to the returned value. Make copies instead.
 func (a *Args) Peek(key string) []byte {
-	return peekArgStr(a.args, key)
+	return peekArgStr(a.Args, key)
 }
 
 // PeekBytes returns query arg value for the given key.
@@ -253,15 +253,15 @@ func (a *Args) Peek(key string) []byte {
 // The returned value is valid until the Args is reused or released (ReleaseArgs).
 // Do not store references to the returned value. Make copies instead.
 func (a *Args) PeekBytes(key []byte) []byte {
-	return peekArgBytes(a.args, key)
+	return peekArgBytes(a.Args, key)
 }
 
 // PeekMulti returns all the arg values for the given key.
 func (a *Args) PeekMulti(key string) [][]byte {
 	var values [][]byte
 	a.VisitAll(func(k, v []byte) {
-		if string(k) == key {
-			values = append(values, v)
+		if string(k) == Key {
+			Values = append(values, v)
 		}
 	})
 	return values
@@ -274,12 +274,12 @@ func (a *Args) PeekMultiBytes(key []byte) [][]byte {
 
 // Has returns true if the given key exists in Args.
 func (a *Args) Has(key string) bool {
-	return hasArg(a.args, key)
+	return hasArg(a.Args, key)
 }
 
 // HasBytes returns true if the given key exists in Args.
 func (a *Args) HasBytes(key []byte) bool {
-	return hasArg(a.args, b2s(key))
+	return hasArg(a.Args, b2s(key))
 }
 
 // ErrNoArgValue is returned when Args value with the given key is missing.
@@ -357,7 +357,7 @@ func (a *Args) GetBool(key string) bool {
 func visitArgs(args []ArgsKV, f func(k, v []byte)) {
 	for i, n := 0, len(args); i < n; i++ {
 		kv := &args[i]
-		f(kv.key, kv.value)
+		f(kv.key, kv.Value)
 	}
 }
 
@@ -368,8 +368,8 @@ func copyArgs(dst, src []ArgsKV) []ArgsKV {
 		copy(tmp, dst)
 		for i := len(dst); i < len(tmp); i++ {
 			// Make sure nothing is nil.
-			tmp[i].key = []byte{}
-			tmp[i].value = []byte{}
+			tmp[i].Key = []byte{}
+			tmp[i].Value = []byte{}
 		}
 		dst = tmp
 	}
@@ -378,13 +378,13 @@ func copyArgs(dst, src []ArgsKV) []ArgsKV {
 	for i := 0; i < n; i++ {
 		dstKV := &dst[i]
 		srcKV := &src[i]
-		dstKV.key = append(dstKV.key[:0], srcKV.key...)
+		dstKV.Key = append(dstKV.Key[:0], srcKV.Key...)
 		if srcKV.noValue {
 			dstKV.value = dstKV.value[:0]
 		} else {
-			dstKV.value = append(dstKV.value[:0], srcKV.value...)
+			dstKV.Value = append(dstKV.Value[:0], srcKV.Value...)
 		}
-		dstKV.noValue = srcKV.noValue
+		dstKV.NoValue = srcKV.NoValue
 	}
 	return dst
 }
@@ -416,13 +416,13 @@ func setArg(h []ArgsKV, key, value string, noValue bool) []ArgsKV {
 	n := len(h)
 	for i := 0; i < n; i++ {
 		kv := &h[i]
-		if key == string(kv.key) {
+		if key == string(kv.Key) {
 			if noValue {
-				kv.value = kv.value[:0]
+				kv.Value = kv.Value[:0]
 			} else {
-				kv.value = append(kv.value[:0], value...)
+				kv.Value = append(kv.Value[:0], value...)
 			}
-			kv.noValue = noValue
+			kv.noValue = NoValue
 			return h
 		}
 	}
@@ -436,13 +436,13 @@ func appendArgBytes(h []ArgsKV, key, value []byte, noValue bool) []ArgsKV {
 func appendArg(args []ArgsKV, key, value string, noValue bool) []ArgsKV {
 	var kv *ArgsKV
 	args, kv = allocArg(args)
-	kv.key = append(kv.key[:0], key...)
+	kv.Key = append(kv.Key[:0], key...)
 	if noValue {
-		kv.value = kv.value[:0]
+		kv.Value = kv.Value[:0]
 	} else {
-		kv.value = append(kv.value[:0], value...)
+		kv.Value = append(kv.Value[:0], value...)
 	}
-	kv.noValue = noValue
+	kv.noValue = NoValue
 	return args
 }
 
@@ -465,7 +465,7 @@ func releaseArg(h []ArgsKV) []ArgsKV {
 func hasArg(h []ArgsKV, key string) bool {
 	for i, n := 0, len(h); i < n; i++ {
 		kv := &h[i]
-		if key == string(kv.key) {
+		if key == string(kv.Key) {
 			return true
 		}
 	}
@@ -475,8 +475,8 @@ func hasArg(h []ArgsKV, key string) bool {
 func peekArgBytes(h []ArgsKV, k []byte) []byte {
 	for i, n := 0, len(h); i < n; i++ {
 		kv := &h[i]
-		if bytes.Equal(kv.key, k) {
-			return kv.value
+		if bytes.Equal(kv.Key, k) {
+			return kv.Value
 		}
 	}
 	return nil
@@ -485,8 +485,8 @@ func peekArgBytes(h []ArgsKV, k []byte) []byte {
 func peekArgStr(h []ArgsKV, k string) []byte {
 	for i, n := 0, len(h); i < n; i++ {
 		kv := &h[i]
-		if string(kv.key) == k {
-			return kv.value
+		if string(kv.Key) == k {
+			return kv.Value
 		}
 	}
 	return nil
@@ -500,7 +500,7 @@ func (s *argsScanner) next(kv *ArgsKV) bool {
 	if len(s.b) == 0 {
 		return false
 	}
-	kv.noValue = argsHasValue
+	kv.NoValue = argsHasValue
 
 	isKey := true
 	k := 0
@@ -509,16 +509,16 @@ func (s *argsScanner) next(kv *ArgsKV) bool {
 		case '=':
 			if isKey {
 				isKey = false
-				kv.key = decodeArgAppend(kv.key[:0], s.b[:i])
+				kv.Key = decodeArgAppend(kv.Key[:0], s.b[:i])
 				k = i + 1
 			}
 		case '&':
 			if isKey {
-				kv.key = decodeArgAppend(kv.key[:0], s.b[:i])
-				kv.value = kv.value[:0]
-				kv.noValue = argsNoValue
+				kv.Key = decodeArgAppend(kv.Key[:0], s.b[:i])
+				kv.Value = kv.Value[:0]
+				kv.NoValue = argsNoValue
 			} else {
-				kv.value = decodeArgAppend(kv.value[:0], s.b[k:i])
+				kv.Value = decodeArgAppend(kv.Value[:0], s.b[k:i])
 			}
 			s.b = s.b[i+1:]
 			return true
@@ -526,11 +526,11 @@ func (s *argsScanner) next(kv *ArgsKV) bool {
 	}
 
 	if isKey {
-		kv.key = decodeArgAppend(kv.key[:0], s.b)
-		kv.value = kv.value[:0]
-		kv.noValue = argsNoValue
+		kv.Key = decodeArgAppend(kv.Key[:0], s.b)
+		kv.Value = kv.Value[:0]
+		kv.NoValue = argsNoValue
 	} else {
-		kv.value = decodeArgAppend(kv.value[:0], s.b[k:])
+		kv.Value = decodeArgAppend(kv.Value[:0], s.b[k:])
 	}
 	s.b = s.b[len(s.b):]
 	return true
