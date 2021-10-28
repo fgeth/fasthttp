@@ -220,7 +220,7 @@ func (a *Args) SetBytesK(key []byte, value string) {
 
 // SetBytesV sets 'key=value' argument.
 func (a *Args) SetBytesV(key string, value []byte) {
-	a.Args = setArg(a.Ags, key, b2s(value), argsHasValue)
+	a.Args = setArg(a.Args, key, b2s(value), argsHasValue)
 }
 
 // SetBytesKV sets 'key=value' argument.
@@ -380,7 +380,7 @@ func copyArgs(dst, src []ArgsKV) []ArgsKV {
 		srcKV := &src[i]
 		dstKV.Key = append(dstKV.Key[:0], srcKV.Key...)
 		if srcKV.NoValue {
-			dstKV.Value = dstKV.value[:0]
+			dstKV.Value = dstKV.Value[:0]
 		} else {
 			dstKV.Value = append(dstKV.Value[:0], srcKV.Value...)
 		}
@@ -396,7 +396,7 @@ func delAllArgsBytes(args []ArgsKV, key []byte) []ArgsKV {
 func delAllArgs(args []ArgsKV, key string) []ArgsKV {
 	for i, n := 0, len(args); i < n; i++ {
 		kv := &args[i]
-		if key == string(kv.key) {
+		if key == string(kv.Key) {
 			tmp := *kv
 			copy(args[i:], args[i+1:])
 			n--
@@ -422,7 +422,7 @@ func setArg(h []ArgsKV, key, value string, noValue bool) []ArgsKV {
 			} else {
 				kv.Value = append(kv.Value[:0], value...)
 			}
-			kv.noValue = NoValue
+			kv.NoValue = noValue
 			return h
 		}
 	}
@@ -442,7 +442,7 @@ func appendArg(args []ArgsKV, key, value string, noValue bool) []ArgsKV {
 	} else {
 		kv.Value = append(kv.Value[:0], value...)
 	}
-	kv.noValue = NoValue
+	kv.NoValue = noValue
 	return args
 }
 
@@ -452,7 +452,7 @@ func allocArg(h []ArgsKV) ([]ArgsKV, *ArgsKV) {
 		h = h[:n+1]
 	} else {
 		h = append(h, ArgsKV{
-			value: []byte{},
+			Value: []byte{},
 		})
 	}
 	return h, &h[n]

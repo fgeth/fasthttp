@@ -264,11 +264,11 @@ func (c *Cookie) AppendBytes(dst []byte) []byte {
 		dst = append(dst, '=')
 		dst = AppendUint(dst, c.maxAge)
 	} else if !c.expire.IsZero() {
-		c.bufKV.value = AppendHTTPDate(c.bufKV.value[:0], c.expire)
+		c.bufKV.Value = AppendHTTPDate(c.bufKV.Value[:0], c.expire)
 		dst = append(dst, ';', ' ')
 		dst = append(dst, strCookieExpires...)
 		dst = append(dst, '=')
-		dst = append(dst, c.bufKV.value...)
+		dst = append(dst, c.bufKV.Value...)
 	}
 	if len(c.domain) > 0 {
 		dst = appendCookiePart(dst, strCookieDomain, c.domain)
