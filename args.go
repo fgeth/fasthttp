@@ -82,7 +82,7 @@ func (a *Args) Len() int {
 
 // Parse parses the given string containing query args.
 func (a *Args) Parse(s string) {
-	a.buf = append(a.buf[:0], s...)
+	a.Buf = append(a.Buf[:0], s...)
 	a.ParseBytes(a.Buf)
 }
 
@@ -96,7 +96,7 @@ func (a *Args) ParseBytes(b []byte) {
 	var kv *ArgsKV
 	a.Args, kv = allocArg(a.Args)
 	for s.next(kv) {
-		if len(kv.key) > 0 || len(kv.value) > 0 {
+		if len(kv.Key) > 0 || len(kv.Value) > 0 {
 			a.Args, kv = allocArg(a.Args)
 		}
 	}
@@ -121,7 +121,7 @@ func (a *Args) QueryString() []byte {
 //
 // For example args.Sort(bytes.Compare)
 func (a *Args) Sort(f func(x, y []byte) int) {
-	sort.SliceStable(a.args, func(i, j int) bool {
+	sort.SliceStable(a.Args, func(i, j int) bool {
 		n := f(a.Args[i].Key, a.Args[j].Key)
 		if n == 0 {
 			return f(a.Args[i].Value, a.Args[j].Value) == -1
@@ -220,7 +220,7 @@ func (a *Args) SetBytesK(key []byte, value string) {
 
 // SetBytesV sets 'key=value' argument.
 func (a *Args) SetBytesV(key string, value []byte) {
-	a.Args = setArg(a.aAgs, key, b2s(value), argsHasValue)
+	a.Args = setArg(a.Ags, key, b2s(value), argsHasValue)
 }
 
 // SetBytesKV sets 'key=value' argument.
@@ -260,8 +260,8 @@ func (a *Args) PeekBytes(key []byte) []byte {
 func (a *Args) PeekMulti(key string) [][]byte {
 	var values [][]byte
 	a.VisitAll(func(k, v []byte) {
-		if string(k) == Key {
-			Values = append(values, v)
+		if string(k) == key {
+			values = append(values, v)
 		}
 	})
 	return values
@@ -357,7 +357,7 @@ func (a *Args) GetBool(key string) bool {
 func visitArgs(args []ArgsKV, f func(k, v []byte)) {
 	for i, n := 0, len(args); i < n; i++ {
 		kv := &args[i]
-		f(kv.key, kv.Value)
+		f(kv.Key, kv.Value)
 	}
 }
 
@@ -379,8 +379,8 @@ func copyArgs(dst, src []ArgsKV) []ArgsKV {
 		dstKV := &dst[i]
 		srcKV := &src[i]
 		dstKV.Key = append(dstKV.Key[:0], srcKV.Key...)
-		if srcKV.noValue {
-			dstKV.value = dstKV.value[:0]
+		if srcKV.NoValue {
+			dstKV.Value = dstKV.value[:0]
 		} else {
 			dstKV.Value = append(dstKV.Value[:0], srcKV.Value...)
 		}
