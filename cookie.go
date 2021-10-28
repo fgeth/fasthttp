@@ -387,7 +387,8 @@ func (c *Cookie) ParseBytes(src []byte) error {
 
 			case 'p': // "path"
 				if caseInsensitiveCompare(strCookiePath, kv.Key) {
-					c.path = append(c.path, kv.value...)
+					c.path = append(c.path, kv.Value...)
+					c.path = append(c.path, kv.Value...)
 				}
 
 			case 's': // "samesite"
