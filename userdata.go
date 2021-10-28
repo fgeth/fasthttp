@@ -16,8 +16,8 @@ func (d *userData) Set(key string, value interface{}) {
 	n := len(args)
 	for i := 0; i < n; i++ {
 		kv := &args[i]
-		if string(kv.key) == key {
-			kv.value = value
+		if string(kv.Key) == key {
+			kv.Value = value
 			return
 		}
 	}
@@ -30,15 +30,15 @@ func (d *userData) Set(key string, value interface{}) {
 	if c > n {
 		args = args[:n+1]
 		kv := &args[n]
-		kv.key = append(kv.key[:0], key...)
-		kv.value = value
+		kv.Key = append(kv.Key[:0], key...)
+		kv.Value = value
 		*d = args
 		return
 	}
 
 	kv := userDataKV{}
-	kv.key = append(kv.key[:0], key...)
-	kv.value = value
+	kv.Key = append(kv.Key[:0], key...)
+	kv.Value = value
 	*d = append(args, kv)
 }
 
@@ -51,8 +51,8 @@ func (d *userData) Get(key string) interface{} {
 	n := len(args)
 	for i := 0; i < n; i++ {
 		kv := &args[i]
-		if string(kv.key) == key {
-			return kv.value
+		if string(kv.Key) == key {
+			return kv.Value
 		}
 	}
 	return nil
@@ -79,7 +79,7 @@ func (d *userData) Remove(key string) {
 	n := len(args)
 	for i := 0; i < n; i++ {
 		kv := &args[i]
-		if string(kv.key) == key {
+		if string(kv.Key) == key {
 			n--
 			args[i] = args[n]
 			args[n].value = nil

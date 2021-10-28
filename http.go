@@ -1350,7 +1350,7 @@ func (req *Request) Write(w *bufio.Writer) error {
 		req.Header.SetRequestURIBytes(uri.RequestURI())
 
 		if len(uri.username) > 0 {
-			// RequestHeader.SetBytesKV only uses RequestHeader.bufKV.key
+			// RequestHeader.SetBytesKV only uses RequestHeader.bufkv.Key
 			// So we are free to use RequestHeader.bufKV.value as a scratch pad for
 			// the base64 encoding.
 			nl := len(uri.username) + len(uri.password) + 1
