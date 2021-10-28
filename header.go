@@ -1289,7 +1289,7 @@ func (h *RequestHeader) Set(key, value string) {
 //
 // Use AddBytesK for setting multiple header values under the same key.
 func (h *RequestHeader) SetBytesK(key []byte, value string) {
-	h.bufKV.Value = append(h.bufKV.value[:0], value...)
+	h.bufKV.Value = append(h.bufKV.Value[:0], value...)
 	h.SetBytesKV(key, h.bufKV.Value)
 }
 
@@ -1305,7 +1305,7 @@ func (h *RequestHeader) SetBytesV(key string, value []byte) {
 //
 // Use AddBytesKV for setting multiple header values under the same key.
 func (h *RequestHeader) SetBytesKV(key, value []byte) {
-	h.bufKV.Key = append(h.bufKV.key[:0], key...)
+	h.bufKV.Key = append(h.bufKV.Key[:0], key...)
 	normalizeHeaderKey(h.bufKV.Key, h.disableNormalizing)
 	h.SetCanonical(h.bufKV.Key, value)
 }
@@ -1336,7 +1336,7 @@ func (h *ResponseHeader) Peek(key string) []byte {
 // either though ReleaseResponse or your request handler returning.
 // Do not store references to returned value. Make copies instead.
 func (h *ResponseHeader) PeekBytes(key []byte) []byte {
-	h.bufKV.key = append(h.bufKV.key[:0], key...)
+	h.bufKV.Key = append(h.bufKV.Key[:0], key...)
 	normalizeHeaderKey(h.bufKV.Key, h.disableNormalizing)
 	return h.peek(h.bufKV.Key)
 }
@@ -1357,9 +1357,9 @@ func (h *RequestHeader) Peek(key string) []byte {
 // either though ReleaseRequest or your request handler returning.
 // Do not store references to returned value. Make copies instead.
 func (h *RequestHeader) PeekBytes(key []byte) []byte {
-	h.bufKV.key = append(h.bufKV.key[:0], key...)
-	normalizeHeaderKey(h.bufKV.key, h.disableNormalizing)
-	return h.peek(h.bufKV.key)
+	h.bufKV.Key = append(h.bufKV.Key[:0], key...)
+	normalizeHeaderKey(h.bufKV.Key, h.disableNormalizing)
+	return h.peek(h.bufKV.Key)
 }
 
 func (h *ResponseHeader) peek(key []byte) []byte {
@@ -1639,8 +1639,8 @@ func (h *ResponseHeader) WriteTo(w io.Writer) (int64, error) {
 // either though ReleaseRequest or your request handler returning.
 // Do not store references to returned value. Make copies instead.
 func (h *ResponseHeader) Header() []byte {
-	h.bufKV.value = h.AppendBytes(h.bufKV.value[:0])
-	return h.bufKV.value
+	h.bufKV.Value = h.AppendBytes(h.bufKV.Value[:0])
+	return h.bufKV.Value
 }
 
 // String returns response header representation.
@@ -1688,8 +1688,8 @@ func (h *ResponseHeader) AppendBytes(dst []byte) []byte {
 
 	for i, n := 0, len(h.h); i < n; i++ {
 		kv := &h.h[i]
-		if h.noDefaultDate || !bytes.Equal(kv.key, strDate) {
-			dst = appendHeaderLine(dst, kv.key, kv.value)
+		if h.noDefaultDate || !bytes.Equal(kv.Key, strDate) {
+			dst = appendHeaderLine(dst, kv.Key, kv.Value)
 		}
 	}
 
@@ -1728,8 +1728,8 @@ func (h *RequestHeader) WriteTo(w io.Writer) (int64, error) {
 // either though ReleaseRequest or your request handler returning.
 // Do not store references to returned value. Make copies instead.
 func (h *RequestHeader) Header() []byte {
-	h.bufKV.value = h.AppendBytes(h.bufKV.value[:0])
-	return h.bufKV.value
+	h.bufKV.Value = h.AppendBytes(h.bufKV.Value[:0])
+	return h.bufKV.Value
 }
 
 // RawHeaders returns raw header key/value bytes.
@@ -1784,7 +1784,7 @@ func (h *RequestHeader) AppendBytes(dst []byte) []byte {
 
 	for i, n := 0, len(h.h); i < n; i++ {
 		kv := &h.h[i]
-		dst = appendHeaderLine(dst, kv.key, kv.value)
+		dst = appendHeaderLine(dst, kv.Key, kv.Value)
 	}
 
 	// there is no need in h.collectCookies() here, since if cookies aren't collected yet,
@@ -1991,7 +1991,7 @@ func (h *ResponseHeader) parseHeaders(buf []byte) (int, error) {
 						h.connectionClose = true
 					} else {
 						h.connectionClose = false
-						h.h = appendArgBytes(h.h, s.key, s.value, argsHasValue)
+						h.h = appendArgBytes(h.h, s.Key, s.Value, argsHasValue)
 					}
 					continue
 				}
@@ -2002,8 +2002,8 @@ func (h *ResponseHeader) parseHeaders(buf []byte) (int, error) {
 				}
 				if caseInsensitiveCompare(s.key, strSetCookie) {
 					h.cookies, kv = allocArg(h.cookies)
-					kv.key = getCookieKey(kv.key, s.value)
-					kv.value = append(kv.value[:0], s.value...)
+					kv.Key = getCookieKey(kv.Key, s.value)
+					kv.Value = append(kv.Value[:0], s.value...)
 					continue
 				}
 			case 't':
