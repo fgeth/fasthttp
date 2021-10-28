@@ -3,7 +3,7 @@ package fasthttp
 import (
 	"io"
 )
-
+//update to upper case
 type userDataKV struct {
 	Key   []byte
 	Value interface{}
