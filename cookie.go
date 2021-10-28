@@ -353,12 +353,12 @@ func (c *Cookie) ParseBytes(src []byte) error {
 	c.value = append(c.value, kv.Value...)
 
 	for s.next(kv) {
-		if len(kv.key) != 0 {
+		if len(kv.Key) != 0 {
 			// Case insensitive switch on first char
-			switch kv.key[0] | 0x20 {
+			switch kv.Key[0] | 0x20 {
 			case 'm':
 				if caseInsensitiveCompare(strCookieMaxAge, kv.key) {
-					maxAge, err := ParseUint(kv.value)
+					maxAge, err := ParseUint(kv.Value)
 					if err != nil {
 						return err
 					}
@@ -367,7 +367,7 @@ func (c *Cookie) ParseBytes(src []byte) error {
 
 			case 'e': // "expires"
 				if caseInsensitiveCompare(strCookieExpires, kv.key) {
-					v := b2s(kv.value)
+					v := b2s(kv.Value)
 					// Try the same two formats as net/http
 					// See: https://github.com/golang/go/blob/00379be17e63a5b75b3237819392d2dc3b313a27/src/net/http/cookie.go#L133-L135
 					exptime, err := time.ParseInLocation(time.RFC1123, v, time.UTC)
@@ -381,30 +381,30 @@ func (c *Cookie) ParseBytes(src []byte) error {
 				}
 
 			case 'd': // "domain"
-				if caseInsensitiveCompare(strCookieDomain, kv.key) {
+				if caseInsensitiveCompare(strCookieDomain, kv.Key) {
 					c.domain = append(c.domain, kv.value...)
 				}
 
 			case 'p': // "path"
-				if caseInsensitiveCompare(strCookiePath, kv.key) {
+				if caseInsensitiveCompare(strCookiePath, kv.Key) {
 					c.path = append(c.path, kv.value...)
 				}
 
 			case 's': // "samesite"
-				if caseInsensitiveCompare(strCookieSameSite, kv.key) {
-					if len(kv.value) > 0 {
+				if caseInsensitiveCompare(strCookieSameSite, kv.Key) {
+					if len(kv.Value) > 0 {
 						// Case insensitive switch on first char
-						switch kv.value[0] | 0x20 {
+						switch kv.Value[0] | 0x20 {
 						case 'l': // "lax"
-							if caseInsensitiveCompare(strCookieSameSiteLax, kv.value) {
+							if caseInsensitiveCompare(strCookieSameSiteLax, kv.Value) {
 								c.sameSite = CookieSameSiteLaxMode
 							}
 						case 's': // "strict"
-							if caseInsensitiveCompare(strCookieSameSiteStrict, kv.value) {
+							if caseInsensitiveCompare(strCookieSameSiteStrict, kv.Value) {
 								c.sameSite = CookieSameSiteStrictMode
 							}
 						case 'n': // "none"
-							if caseInsensitiveCompare(strCookieSameSiteNone, kv.value) {
+							if caseInsensitiveCompare(strCookieSameSiteNone, kv.Value) {
 								c.sameSite = CookieSameSiteNoneMode
 							}
 						}
@@ -414,16 +414,16 @@ func (c *Cookie) ParseBytes(src []byte) error {
 
 		} else if len(kv.value) != 0 {
 			// Case insensitive switch on first char
-			switch kv.value[0] | 0x20 {
+			switch kv.Value[0] | 0x20 {
 			case 'h': // "httponly"
-				if caseInsensitiveCompare(strCookieHTTPOnly, kv.value) {
+				if caseInsensitiveCompare(strCookieHTTPOnly, kv.Value) {
 					c.httpOnly = true
 				}
 
 			case 's': // "secure"
-				if caseInsensitiveCompare(strCookieSecure, kv.value) {
+				if caseInsensitiveCompare(strCookieSecure, kv.Value) {
 					c.secure = true
-				} else if caseInsensitiveCompare(strCookieSameSite, kv.value) {
+				} else if caseInsensitiveCompare(strCookieSameSite, kv.Value) {
 					c.sameSite = CookieSameSiteDefaultMode
 				}
 			}
@@ -450,11 +450,11 @@ func getCookieKey(dst, src []byte) []byte {
 func appendRequestCookieBytes(dst []byte, cookies []ArgsKV) []byte {
 	for i, n := 0, len(cookies); i < n; i++ {
 		kv := &cookies[i]
-		if len(kv.key) > 0 {
-			dst = append(dst, kv.key...)
+		if len(kv.Key) > 0 {
+			dst = append(dst, kv.Key...)
 			dst = append(dst, '=')
 		}
-		dst = append(dst, kv.value...)
+		dst = append(dst, kv.Value...)
 		if i+1 < n {
 			dst = append(dst, ';', ' ')
 		}
@@ -467,7 +467,7 @@ func appendRequestCookieBytes(dst []byte, cookies []ArgsKV) []byte {
 func appendResponseCookieBytes(dst []byte, cookies []ArgsKV) []byte {
 	for i, n := 0, len(cookies); i < n; i++ {
 		kv := &cookies[i]
-		dst = append(dst, kv.value...)
+		dst = append(dst, kv.Value...)
 		if i+1 < n {
 			dst = append(dst, ';', ' ')
 		}
@@ -481,7 +481,7 @@ func parseRequestCookies(cookies []ArgsKV, src []byte) []ArgsKV {
 	var kv *ArgsKV
 	cookies, kv = allocArg(cookies)
 	for s.next(kv) {
-		if len(kv.key) > 0 || len(kv.value) > 0 {
+		if len(kv.Key) > 0 || len(kv.Value) > 0 {
 			cookies, kv = allocArg(cookies)
 		}
 	}
@@ -505,23 +505,23 @@ func (s *cookieScanner) next(kv *ArgsKV) bool {
 		case '=':
 			if isKey {
 				isKey = false
-				kv.key = decodeCookieArg(kv.key, b[:i], false)
+				kv.Key = decodeCookieArg(kv.Key, b[:i], false)
 				k = i + 1
 			}
 		case ';':
 			if isKey {
-				kv.key = kv.key[:0]
+				kv.Key = kv.Key[:0]
 			}
-			kv.value = decodeCookieArg(kv.value, b[k:i], true)
+			kv.Value = decodeCookieArg(kv.Value, b[k:i], true)
 			s.b = b[i+1:]
 			return true
 		}
 	}
 
 	if isKey {
-		kv.key = kv.key[:0]
+		kv.Key = kv.Key[:0]
 	}
-	kv.value = decodeCookieArg(kv.value, b[k:], true)
+	kv.Value = decodeCookieArg(kv.Value, b[k:], true)
 	s.b = b[len(b):]
 	return true
 }
