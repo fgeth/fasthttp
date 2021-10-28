@@ -413,7 +413,7 @@ func (c *Cookie) ParseBytes(src []byte) error {
 				}
 			}
 
-		} else if len(kv.value) != 0 {
+		} else if len(kv.Value) != 0 {
 			// Case insensitive switch on first char
 			switch kv.Value[0] | 0x20 {
 			case 'h': // "httponly"

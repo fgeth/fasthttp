@@ -89,7 +89,7 @@ type RequestHeader struct {
 // SetContentRange sets 'Content-Range: bytes startPos-endPos/contentLength'
 // header.
 func (h *ResponseHeader) SetContentRange(startPos, endPos, contentLength int) {
-	b := h.bufKV.value[:0]
+	b := h.bufKV.Value[:0]
 	b = append(b, strBytes...)
 	b = append(b, ' ')
 	b = AppendUint(b, startPos)
@@ -97,9 +97,9 @@ func (h *ResponseHeader) SetContentRange(startPos, endPos, contentLength int) {
 	b = AppendUint(b, endPos)
 	b = append(b, '/')
 	b = AppendUint(b, contentLength)
-	h.bufKV.value = b
+	h.bufKV.Value = b
 
-	h.SetCanonical(strContentRange, h.bufKV.value)
+	h.SetCanonical(strContentRange, h.bufKV.Value)
 }
 
 // SetByteRange sets 'Range: bytes=startPos-endPos' header.
@@ -107,7 +107,7 @@ func (h *ResponseHeader) SetContentRange(startPos, endPos, contentLength int) {
 //     * If startPos is negative, then 'bytes=-startPos' value is set.
 //     * If endPos is negative, then 'bytes=startPos-' value is set.
 func (h *RequestHeader) SetByteRange(startPos, endPos int) {
-	b := h.bufKV.value[:0]
+	b := h.bufKV.Value[:0]
 	b = append(b, strBytes...)
 	b = append(b, '=')
 	if startPos >= 0 {
@@ -119,9 +119,9 @@ func (h *RequestHeader) SetByteRange(startPos, endPos int) {
 	if endPos >= 0 {
 		b = AppendUint(b, endPos)
 	}
-	h.bufKV.value = b
+	h.bufKV.Value = b
 
-	h.SetCanonical(strRange, h.bufKV.value)
+	h.SetCanonical(strRange, h.bufKV.Value)
 }
 
 // StatusCode returns response status code.
@@ -152,8 +152,8 @@ func (h *ResponseHeader) SetStatusLine(statusLine []byte) {
 
 // SetLastModified sets 'Last-Modified' header to the given value.
 func (h *ResponseHeader) SetLastModified(t time.Time) {
-	h.bufKV.value = AppendHTTPDate(h.bufKV.value[:0], t)
-	h.SetCanonical(strLastModified, h.bufKV.value)
+	h.bufKV.Value = AppendHTTPDate(h.bufKV.Value[:0], t)
+	h.SetCanonical(strLastModified, h.bufKV.Value)
 }
 
 // ConnectionClose returns true if 'Connection: close' header is set.
@@ -345,30 +345,30 @@ func (h *RequestHeader) SetContentTypeBytes(contentType []byte) {
 // 'multipart/form-data; boundary=...'
 // where ... is substituted by the given boundary.
 func (h *RequestHeader) SetMultipartFormBoundary(boundary string) {
-	b := h.bufKV.value[:0]
+	b := h.bufKV.Value[:0]
 	b = append(b, strMultipartFormData...)
 	b = append(b, ';', ' ')
 	b = append(b, strBoundary...)
 	b = append(b, '=')
 	b = append(b, boundary...)
-	h.bufKV.value = b
+	h.bufKV.Value = b
 
-	h.SetContentTypeBytes(h.bufKV.value)
+	h.SetContentTypeBytes(h.bufKV.Value)
 }
 
 // SetMultipartFormBoundaryBytes sets the following Content-Type:
 // 'multipart/form-data; boundary=...'
 // where ... is substituted by the given boundary.
 func (h *RequestHeader) SetMultipartFormBoundaryBytes(boundary []byte) {
-	b := h.bufKV.value[:0]
+	b := h.bufKV.Value[:0]
 	b = append(b, strMultipartFormData...)
 	b = append(b, ';', ' ')
 	b = append(b, strBoundary...)
 	b = append(b, '=')
 	b = append(b, boundary...)
-	h.bufKV.value = b
+	h.bufKV.Value = b
 
-	h.SetContentTypeBytes(h.bufKV.value)
+	h.SetContentTypeBytes(h.bufKV.Value)
 }
 
 // MultipartFormBoundary returns boundary part
@@ -883,9 +883,9 @@ func (h *ResponseHeader) Del(key string) {
 
 // DelBytes deletes header with the given key.
 func (h *ResponseHeader) DelBytes(key []byte) {
-	h.bufKV.key = append(h.bufKV.key[:0], key...)
-	normalizeHeaderKey(h.bufKV.key, h.disableNormalizing)
-	h.del(h.bufKV.key)
+	h.bufKV.Key = append(h.bufKV.Key[:0], key...)
+	normalizeHeaderKey(h.bufKV.Key, h.disableNormalizing)
+	h.del(h.bufKV.Key)
 }
 
 func (h *ResponseHeader) del(key []byte) {
@@ -913,9 +913,9 @@ func (h *RequestHeader) Del(key string) {
 
 // DelBytes deletes header with the given key.
 func (h *RequestHeader) DelBytes(key []byte) {
-	h.bufKV.key = append(h.bufKV.key[:0], key...)
-	normalizeHeaderKey(h.bufKV.key, h.disableNormalizing)
-	h.del(h.bufKV.key)
+	h.bufKV.Key = append(h.bufKV.Key[:0], key...)
+	normalizeHeaderKey(h.bufKV.Key, h.disableNormalizing)
+	h.del(h.bufKV.Key)
 }
 
 func (h *RequestHeader) del(key []byte) {
