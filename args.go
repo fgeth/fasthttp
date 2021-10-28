@@ -50,7 +50,7 @@ type Args struct {
 	buf  []byte
 }
 
-type argsKV struct {
+type ArgsKV struct {
 	key     []byte
 	value   []byte
 	noValue bool
