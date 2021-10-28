@@ -5,8 +5,8 @@ import (
 )
 
 type userDataKV struct {
-	key   []byte
-	value interface{}
+	Key   []byte
+	Value interface{}
 }
 
 type userData []userDataKV
