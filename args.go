@@ -378,7 +378,7 @@ func copyArgs(dst, src []ArgsKV) []ArgsKV {
 	for i := 0; i < n; i++ {
 		dstKV := &dst[i]
 		srcKV := &src[i]
-		dstkv.Key = append(dstkv.Key[:0], srckv.Key...)
+		dstkv.Key = append(dstKV.Key[:0], srcKV.Key...)
 		if srcKV.NoValue {
 			dstKV.Value = dstKV.Value[:0]
 		} else {
