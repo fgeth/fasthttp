@@ -66,7 +66,7 @@ func (d *userData) Reset() {
 	args := *d
 	n := len(args)
 	for i := 0; i < n; i++ {
-		v := args[i].value
+		v := args[i].Value
 		if vc, ok := v.(io.Closer); ok {
 			vc.Close()
 		}
@@ -82,7 +82,7 @@ func (d *userData) Remove(key string) {
 		if string(kv.Key) == key {
 			n--
 			args[i] = args[n]
-			args[n].value = nil
+			args[n].Value = nil
 			args = args[:n]
 			*d = args
 			return

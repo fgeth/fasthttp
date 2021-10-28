@@ -699,7 +699,7 @@ func (ctx *RequestCtx) UserValueBytes(key []byte) interface{} {
 func (ctx *RequestCtx) VisitUserValues(visitor func([]byte, interface{})) {
 	for i, n := 0, len(ctx.userValues); i < n; i++ {
 		kv := &ctx.userValues[i]
-		visitor(kv.key, kv.value)
+		visitor(kv.Key, kv.Value)
 	}
 }
 
