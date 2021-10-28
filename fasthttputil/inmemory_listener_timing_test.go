@@ -5,8 +5,8 @@ import (
 	"net"
 	"testing"
 
-	"github.com/fgeth/fasthttp"
-	"github.com/fgeth/fasthttp/fasthttputil"
+	"github.com/valyala/fasthttp"
+	"github.com/valyala/fasthttp/fasthttputil"
 )
 
 // BenchmarkPlainStreaming measures end-to-end plaintext streaming performance

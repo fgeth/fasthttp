@@ -8,7 +8,7 @@ import (
 
 	"github.com/andybalholm/brotli"
 	"github.com/valyala/bytebufferpool"
-	"github.com/fgeth/fasthttp/stackless"
+	"github.com/valyala/fasthttp/stackless"
 )
 
 // Supported compression levels.
@@ -19,7 +19,7 @@ const (
 
 	// Choose a default brotli compression level comparable to
 	// CompressDefaultCompression (gzip 6)
-	// See: https://github.com/fgeth/fasthttp/issues/798#issuecomment-626293806
+	// See: https://github.com/valyala/fasthttp/issues/798#issuecomment-626293806
 	CompressBrotliDefaultCompression = 4
 )
 

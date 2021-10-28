@@ -160,7 +160,7 @@ func TestResponseBodyStreamDeflate(t *testing.T) {
 
 	body := createFixedBody(1e5)
 
-	// Verifies https://github.com/fgeth/fasthttp/issues/176
+	// Verifies https://github.com/valyala/fasthttp/issues/176
 	// when Content-Length is explicitly set.
 	testResponseBodyStreamDeflate(t, body, len(body))
 
@@ -173,7 +173,7 @@ func TestResponseBodyStreamGzip(t *testing.T) {
 
 	body := createFixedBody(1e5)
 
-	// Verifies https://github.com/fgeth/fasthttp/issues/176
+	// Verifies https://github.com/valyala/fasthttp/issues/176
 	// when Content-Length is explicitly set.
 	testResponseBodyStreamGzip(t, body, len(body))
 
@@ -835,6 +835,24 @@ func TestResponseSkipBody(t *testing.T) {
 	}
 	if strings.Contains(s, "Content-Type: ") {
 		t.Fatalf("unexpected content-type in response %q", s)
+	}
+
+	// set StatusNoContent with statusLine
+	r.Header.SetStatusCode(StatusNoContent)
+	r.Header.SetStatusLine([]byte("HTTP/1.1 204 NC\r\n"))
+	r.SetBodyString("foobar")
+	s = r.String()
+	if strings.Contains(s, "\r\n\r\nfoobar") {
+		t.Fatalf("unexpected non-zero body in response %q", s)
+	}
+	if strings.Contains(s, "Content-Length: ") {
+		t.Fatalf("unexpected content-length in response %q", s)
+	}
+	if strings.Contains(s, "Content-Type: ") {
+		t.Fatalf("unexpected content-type in response %q", s)
+	}
+	if !strings.HasPrefix(s, "HTTP/1.1 204 NC\r\n") {
+		t.Fatalf("expecting non-default status line in response %q", s)
 	}
 
 	// explicitly skip body

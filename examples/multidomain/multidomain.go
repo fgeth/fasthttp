@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/fgeth/fasthttp"
+	"github.com/valyala/fasthttp"
 )
 
 var domains = make(map[string]fasthttp.RequestHandler)

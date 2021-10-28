@@ -1122,6 +1122,14 @@ func (req *Request) ContinueReadBody(r *bufio.Reader, maxBodySize int, preParseM
 		return nil
 	}
 
+	return req.ReadBody(r, contentLength, maxBodySize)
+}
+
+// ReadBody reads request body from the given r, limiting the body size.
+//
+// If maxBodySize > 0 and the body size exceeds maxBodySize,
+// then ErrBodyTooLarge is returned.
+func (req *Request) ReadBody(r *bufio.Reader, contentLength int, maxBodySize int) (err error) {
 	bodyBuf := req.bodyBuffer()
 	bodyBuf.Reset()
 	bodyBuf.B, err = readBody(r, contentLength, maxBodySize, bodyBuf.B)
@@ -1133,7 +1141,7 @@ func (req *Request) ContinueReadBody(r *bufio.Reader, maxBodySize int, preParseM
 	return nil
 }
 
-// ContinueReadBody reads request body if request header contains
+// ContinueReadBodyStream reads request body if request header contains
 // 'Expect: 100-continue'.
 //
 // The caller must send StatusContinue response before calling this method.
@@ -1200,7 +1208,10 @@ func (resp *Response) Read(r *bufio.Reader) error {
 	return resp.ReadLimitBody(r, 0)
 }
 
-// ReadLimitBody reads response from the given r, limiting the body size.
+// ReadLimitBody reads response headers from the given r,
+// then reads the body using the ReadBody function and limiting the body size.
+//
+// If resp.SkipBody is true then it skips reading the response body.
 //
 // If maxBodySize > 0 and the body size exceeds maxBodySize,
 // then ErrBodyTooLarge is returned.
@@ -1220,14 +1231,23 @@ func (resp *Response) ReadLimitBody(r *bufio.Reader, maxBodySize int) error {
 	}
 
 	if !resp.mustSkipBody() {
-		bodyBuf := resp.bodyBuffer()
-		bodyBuf.Reset()
-		bodyBuf.B, err = readBody(r, resp.Header.ContentLength(), maxBodySize, bodyBuf.B)
-		if err != nil {
-			return err
-		}
-		resp.Header.SetContentLength(len(bodyBuf.B))
+		return resp.ReadBody(r, maxBodySize)
 	}
+	return nil
+}
+
+// ReadBody reads response body from the given r, limiting the body size.
+//
+// If maxBodySize > 0 and the body size exceeds maxBodySize,
+// then ErrBodyTooLarge is returned.
+func (resp *Response) ReadBody(r *bufio.Reader, maxBodySize int) (err error) {
+	bodyBuf := resp.bodyBuffer()
+	bodyBuf.Reset()
+	bodyBuf.B, err = readBody(r, resp.Header.ContentLength(), maxBodySize, bodyBuf.B)
+	if err != nil {
+		return err
+	}
+	resp.Header.SetContentLength(len(bodyBuf.B))
 	return nil
 }
 
@@ -1462,7 +1482,7 @@ func (resp *Response) brotliBody(level int) error {
 	if resp.bodyStream != nil {
 		// Reset Content-Length to -1, since it is impossible
 		// to determine body size beforehand of streamed compression.
-		// For https://github.com/fgeth/fasthttp/issues/176 .
+		// For https://github.com/valyala/fasthttp/issues/176 .
 		resp.Header.SetContentLength(-1)
 
 		// Do not care about memory allocations here, since brotli is slow
@@ -1517,7 +1537,7 @@ func (resp *Response) gzipBody(level int) error {
 	if resp.bodyStream != nil {
 		// Reset Content-Length to -1, since it is impossible
 		// to determine body size beforehand of streamed compression.
-		// For https://github.com/fgeth/fasthttp/issues/176 .
+		// For https://github.com/valyala/fasthttp/issues/176 .
 		resp.Header.SetContentLength(-1)
 
 		// Do not care about memory allocations here, since gzip is slow
@@ -1572,7 +1592,7 @@ func (resp *Response) deflateBody(level int) error {
 	if resp.bodyStream != nil {
 		// Reset Content-Length to -1, since it is impossible
 		// to determine body size beforehand of streamed compression.
-		// For https://github.com/fgeth/fasthttp/issues/176 .
+		// For https://github.com/valyala/fasthttp/issues/176 .
 		resp.Header.SetContentLength(-1)
 
 		// Do not care about memory allocations here, since flate is slow

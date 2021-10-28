@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/fgeth/fasthttp"
+	"github.com/valyala/fasthttp"
 )
 
 func ExampleRequestCtx_SetBodyStreamWriter() {

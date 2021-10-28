@@ -9,7 +9,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/fgeth/fasthttp"
+	"github.com/valyala/fasthttp"
 )
 
 func setUp() {

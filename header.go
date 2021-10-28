@@ -33,6 +33,7 @@ type ResponseHeader struct {
 	noDefaultDate        bool
 
 	statusCode            int
+	statusLine            []byte
 	contentLength         int
 	contentLengthBytes    []byte
 	secureErrorLogMessage bool
@@ -134,6 +135,19 @@ func (h *ResponseHeader) StatusCode() int {
 // SetStatusCode sets response status code.
 func (h *ResponseHeader) SetStatusCode(statusCode int) {
 	h.statusCode = statusCode
+}
+
+// StatusLine returns response status line.
+func (h *ResponseHeader) StatusLine() []byte {
+	if len(h.statusLine) > 0 {
+		return h.statusLine
+	}
+	return statusLine(h.StatusCode())
+}
+
+// SetStatusLine sets response status line bytes.
+func (h *ResponseHeader) SetStatusLine(statusLine []byte) {
+	h.statusLine = append(h.statusLine[:0], statusLine...)
 }
 
 // SetLastModified sets 'Last-Modified' header to the given value.
@@ -683,6 +697,7 @@ func (h *ResponseHeader) resetSkipNormalize() {
 	h.connectionClose = false
 
 	h.statusCode = 0
+	h.statusLine = h.statusLine[:0]
 	h.contentLength = 0
 	h.contentLengthBytes = h.contentLengthBytes[:0]
 
@@ -731,10 +746,11 @@ func (h *ResponseHeader) CopyTo(dst *ResponseHeader) {
 	dst.noDefaultDate = h.noDefaultDate
 
 	dst.statusCode = h.statusCode
+	dst.statusLine = append(dst.statusLine[:0], h.statusLine...)
 	dst.contentLength = h.contentLength
-	dst.contentLengthBytes = append(dst.contentLengthBytes[:0], h.contentLengthBytes...)
-	dst.contentType = append(dst.contentType[:0], h.contentType...)
-	dst.server = append(dst.server[:0], h.server...)
+	dst.contentLengthBytes = append(dst.contentLengthBytes, h.contentLengthBytes...)
+	dst.contentType = append(dst.contentType, h.contentType...)
+	dst.server = append(dst.server, h.server...)
 	dst.h = copyArgs(dst.h, h.h)
 	dst.cookies = copyArgs(dst.cookies, h.cookies)
 }
@@ -748,17 +764,17 @@ func (h *RequestHeader) CopyTo(dst *RequestHeader) {
 	dst.connectionClose = h.connectionClose
 
 	dst.contentLength = h.contentLength
-	dst.contentLengthBytes = append(dst.contentLengthBytes[:0], h.contentLengthBytes...)
-	dst.method = append(dst.method[:0], h.method...)
-	dst.proto = append(dst.proto[:0], h.proto...)
-	dst.requestURI = append(dst.requestURI[:0], h.requestURI...)
-	dst.host = append(dst.host[:0], h.host...)
-	dst.contentType = append(dst.contentType[:0], h.contentType...)
-	dst.userAgent = append(dst.userAgent[:0], h.userAgent...)
+	dst.contentLengthBytes = append(dst.contentLengthBytes, h.contentLengthBytes...)
+	dst.method = append(dst.method, h.method...)
+	dst.proto = append(dst.proto, h.proto...)
+	dst.requestURI = append(dst.requestURI, h.requestURI...)
+	dst.host = append(dst.host, h.host...)
+	dst.contentType = append(dst.contentType, h.contentType...)
+	dst.userAgent = append(dst.userAgent, h.userAgent...)
 	dst.h = copyArgs(dst.h, h.h)
 	dst.cookies = copyArgs(dst.cookies, h.cookies)
 	dst.cookiesCollected = h.cookiesCollected
-	dst.rawHeaders = append(dst.rawHeaders[:0], h.rawHeaders...)
+	dst.rawHeaders = append(dst.rawHeaders, h.rawHeaders...)
 }
 
 // VisitAll calls f for each header.
@@ -1639,7 +1655,12 @@ func (h *ResponseHeader) AppendBytes(dst []byte) []byte {
 	if statusCode < 0 {
 		statusCode = StatusOK
 	}
-	dst = append(dst, statusLine(statusCode)...)
+
+	if len(h.statusLine) > 0 {
+		dst = append(dst, h.statusLine...)
+	} else {
+		dst = append(dst, statusLine(statusCode)...)
+	}
 
 	server := h.Server()
 	if len(server) != 0 {
@@ -1653,7 +1674,7 @@ func (h *ResponseHeader) AppendBytes(dst []byte) []byte {
 
 	// Append Content-Type only for non-zero responses
 	// or if it is explicitly set.
-	// See https://github.com/fgeth/fasthttp/issues/28 .
+	// See https://github.com/valyala/fasthttp/issues/28 .
 	if h.ContentLength() != 0 || len(h.contentType) > 0 {
 		contentType := h.ContentType()
 		if len(contentType) > 0 {
@@ -1858,6 +1879,9 @@ func (h *ResponseHeader) parseFirstLine(buf []byte) (int, error) {
 			return 0, fmt.Errorf("unexpected char at the end of status code")
 		}
 		return 0, fmt.Errorf("unexpected char at the end of status code. Response %q", buf)
+	}
+	if len(b) > n+1 && !bytes.Equal(b[n+1:], statusLine(h.statusCode)) {
+		h.SetStatusLine(b[n+1:])
 	}
 
 	return len(buf) - len(bNext), nil

@@ -10,8 +10,8 @@ Preforks master process between several child processes increases performance, b
 
 ```go
 import (
-    "github.com/fgeth/fasthttp"
-    "github.com/fgeth/fasthttp/prefork"
+    "github.com/valyala/fasthttp"
+    "github.com/valyala/fasthttp/prefork"
 )
 
 server := &fasthttp.Server{

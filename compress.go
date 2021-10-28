@@ -11,7 +11,7 @@ import (
 	"github.com/klauspost/compress/gzip"
 	"github.com/klauspost/compress/zlib"
 	"github.com/valyala/bytebufferpool"
-	"github.com/fgeth/fasthttp/stackless"
+	"github.com/valyala/fasthttp/stackless"
 )
 
 // Supported compression levels.

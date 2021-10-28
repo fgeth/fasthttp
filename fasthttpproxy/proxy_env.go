@@ -11,7 +11,7 @@ import (
 
 	"golang.org/x/net/http/httpproxy"
 
-	"github.com/fgeth/fasthttp"
+	"github.com/valyala/fasthttp"
 )
 
 const (
