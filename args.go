@@ -44,7 +44,7 @@ var argsPool = &sync.Pool{
 //
 // Args instance MUST NOT be used from concurrently running goroutines.
 type Args struct {
-	noCopy noCopy //nolint:unused,structcheck
+	NoCopy noCopy //nolint:unused,structcheck
 
 	Args []ArgsKV
 	Buf  []byte
@@ -53,7 +53,7 @@ type Args struct {
 type ArgsKV struct {
 	Key     []byte
 	Value   []byte
-	noValue bool
+	NoValue bool
 }
 
 // Reset clears query args.
@@ -83,7 +83,7 @@ func (a *Args) Len() int {
 // Parse parses the given string containing query args.
 func (a *Args) Parse(s string) {
 	a.buf = append(a.buf[:0], s...)
-	a.ParseBytes(a.buf)
+	a.ParseBytes(a.Buf)
 }
 
 // ParseBytes parses the given b containing query args.
