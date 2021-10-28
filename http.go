@@ -14,7 +14,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/valyala/bytebufferpool"
+	"github.com/fgeth/bytebufferpool"
 )
 
 // Request represents HTTP request.
@@ -1482,7 +1482,7 @@ func (resp *Response) brotliBody(level int) error {
 	if resp.bodyStream != nil {
 		// Reset Content-Length to -1, since it is impossible
 		// to determine body size beforehand of streamed compression.
-		// For https://github.com/valyala/fasthttp/issues/176 .
+		// For https://github.com/fgeth/fasthttp/issues/176 .
 		resp.Header.SetContentLength(-1)
 
 		// Do not care about memory allocations here, since brotli is slow
@@ -1537,7 +1537,7 @@ func (resp *Response) gzipBody(level int) error {
 	if resp.bodyStream != nil {
 		// Reset Content-Length to -1, since it is impossible
 		// to determine body size beforehand of streamed compression.
-		// For https://github.com/valyala/fasthttp/issues/176 .
+		// For https://github.com/fgeth/fasthttp/issues/176 .
 		resp.Header.SetContentLength(-1)
 
 		// Do not care about memory allocations here, since gzip is slow
@@ -1592,7 +1592,7 @@ func (resp *Response) deflateBody(level int) error {
 	if resp.bodyStream != nil {
 		// Reset Content-Length to -1, since it is impossible
 		// to determine body size beforehand of streamed compression.
-		// For https://github.com/valyala/fasthttp/issues/176 .
+		// For https://github.com/fgeth/fasthttp/issues/176 .
 		resp.Header.SetContentLength(-1)
 
 		// Do not care about memory allocations here, since flate is slow

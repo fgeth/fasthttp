@@ -5,8 +5,8 @@ import (
 	rtp "runtime/pprof"
 	"strings"
 
-	"github.com/valyala/fasthttp"
-	"github.com/valyala/fasthttp/fasthttpadaptor"
+	"github.com/fgeth/fasthttp"
+	"github.com/fgeth/fasthttp/fasthttpadaptor"
 )
 
 var (

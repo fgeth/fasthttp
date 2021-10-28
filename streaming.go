@@ -6,7 +6,7 @@ import (
 	"io"
 	"sync"
 
-	"github.com/valyala/bytebufferpool"
+	"github.com/fgeth/bytebufferpool"
 )
 
 type requestStream struct {

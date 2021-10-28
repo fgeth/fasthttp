@@ -7,7 +7,7 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/valyala/bytebufferpool"
+	"github.com/fgeth/bytebufferpool"
 )
 
 const (

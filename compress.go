@@ -10,8 +10,8 @@ import (
 	"github.com/klauspost/compress/flate"
 	"github.com/klauspost/compress/gzip"
 	"github.com/klauspost/compress/zlib"
-	"github.com/valyala/bytebufferpool"
-	"github.com/valyala/fasthttp/stackless"
+	"github.com/fgeth/bytebufferpool"
+	"github.com/fgeth/fasthttp/stackless"
 )
 
 // Supported compression levels.

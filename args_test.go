@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/valyala/bytebufferpool"
+	"github.com/fgeth/bytebufferpool"
 )
 
 func TestDecodeArgAppend(t *testing.T) {
