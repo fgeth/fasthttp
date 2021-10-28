@@ -578,7 +578,7 @@ func (h *ResponseHeader) IsHTTP11() bool {
 // the given Accept-Encoding value.
 func (h *RequestHeader) HasAcceptEncoding(acceptEncoding string) bool {
 	h.bufKV.Value = append(h.bufKV.Value[:0], acceptEncoding...)
-	return h.HasAcceptEncodingBytes(h.bufKV.value)
+	return h.HasAcceptEncodingBytes(h.bufKV.Value)
 }
 
 // HasAcceptEncodingBytes returns true if the header contains
@@ -1282,15 +1282,15 @@ func (h *RequestHeader) AddBytesKV(key, value []byte) {
 // Use Add for setting multiple header values under the same key.
 func (h *RequestHeader) Set(key, value string) {
 	initHeaderKV(&h.bufKV, key, value, h.disableNormalizing)
-	h.SetCanonical(h.bufKV.key, h.bufKV.value)
+	h.SetCanonical(h.bufKV.Key, h.bufKV.Value)
 }
 
 // SetBytesK sets the given 'key: value' header.
 //
 // Use AddBytesK for setting multiple header values under the same key.
 func (h *RequestHeader) SetBytesK(key []byte, value string) {
-	h.bufKV.value = append(h.bufKV.value[:0], value...)
-	h.SetBytesKV(key, h.bufKV.value)
+	h.bufKV.Value = append(h.bufKV.value[:0], value...)
+	h.SetBytesKV(key, h.bufKV.Value)
 }
 
 // SetBytesV sets the given 'key: value' header.
@@ -1305,9 +1305,9 @@ func (h *RequestHeader) SetBytesV(key string, value []byte) {
 //
 // Use AddBytesKV for setting multiple header values under the same key.
 func (h *RequestHeader) SetBytesKV(key, value []byte) {
-	h.bufKV.key = append(h.bufKV.key[:0], key...)
-	normalizeHeaderKey(h.bufKV.key, h.disableNormalizing)
-	h.SetCanonical(h.bufKV.key, value)
+	h.bufKV.Key = append(h.bufKV.key[:0], key...)
+	normalizeHeaderKey(h.bufKV.Key, h.disableNormalizing)
+	h.SetCanonical(h.bufKV.Key, value)
 }
 
 // SetCanonical sets the given 'key: value' header assuming that
@@ -1337,8 +1337,8 @@ func (h *ResponseHeader) Peek(key string) []byte {
 // Do not store references to returned value. Make copies instead.
 func (h *ResponseHeader) PeekBytes(key []byte) []byte {
 	h.bufKV.key = append(h.bufKV.key[:0], key...)
-	normalizeHeaderKey(h.bufKV.key, h.disableNormalizing)
-	return h.peek(h.bufKV.key)
+	normalizeHeaderKey(h.bufKV.Key, h.disableNormalizing)
+	return h.peek(h.bufKV.Key)
 }
 
 // Peek returns header value for the given key.
