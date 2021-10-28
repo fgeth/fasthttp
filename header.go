@@ -577,7 +577,7 @@ func (h *ResponseHeader) IsHTTP11() bool {
 // HasAcceptEncoding returns true if the header contains
 // the given Accept-Encoding value.
 func (h *RequestHeader) HasAcceptEncoding(acceptEncoding string) bool {
-	h.bufKV.value = append(h.bufKV.value[:0], acceptEncoding...)
+	h.bufKV.Value = append(h.bufKV.Value[:0], acceptEncoding...)
 	return h.HasAcceptEncodingBytes(h.bufKV.value)
 }
 
@@ -848,8 +848,8 @@ func (h *RequestHeader) VisitAll(f func(key, value []byte)) {
 
 	h.collectCookies()
 	if len(h.cookies) > 0 {
-		h.bufKV.value = appendRequestCookieBytes(h.bufKV.value[:0], h.cookies)
-		f(strCookie, h.bufKV.value)
+		h.bufKV.Value = appendRequestCookieBytes(h.bufKV.Value[:0], h.cookies)
+		f(strCookie, h.bufKV.Value)
 	}
 	visitArgs(h.h, f)
 	if h.ConnectionClose() {
@@ -970,8 +970,8 @@ func (h *ResponseHeader) setSpecialHeader(key, value []byte) bool {
 		} else if caseInsensitiveCompare(strSetCookie, key) {
 			var kv *ArgsKV
 			h.cookies, kv = allocArg(h.cookies)
-			kv.key = getCookieKey(kv.key, value)
-			kv.value = append(kv.value[:0], value...)
+			kv.Key = getCookieKey(kv.Key, value)
+			kv.Value = append(kv.Value[:0], value...)
 			return true
 		}
 	case 't':
@@ -1097,15 +1097,15 @@ func (h *ResponseHeader) AddBytesKV(key, value []byte) {
 // Use Add for setting multiple header values under the same key.
 func (h *ResponseHeader) Set(key, value string) {
 	initHeaderKV(&h.bufKV, key, value, h.disableNormalizing)
-	h.SetCanonical(h.bufKV.key, h.bufKV.value)
+	h.SetCanonical(h.bufKV.Key, h.bufKV.Value)
 }
 
 // SetBytesK sets the given 'key: value' header.
 //
 // Use AddBytesK for setting multiple header values under the same key.
 func (h *ResponseHeader) SetBytesK(key []byte, value string) {
-	h.bufKV.value = append(h.bufKV.value[:0], value...)
-	h.SetBytesKV(key, h.bufKV.value)
+	h.bufKV.Value = append(h.bufKV.Value[:0], value...)
+	h.SetBytesKV(key, h.bufKV.Value)
 }
 
 // SetBytesV sets the given 'key: value' header.
@@ -1120,9 +1120,9 @@ func (h *ResponseHeader) SetBytesV(key string, value []byte) {
 //
 // Use AddBytesKV for setting multiple header values under the same key.
 func (h *ResponseHeader) SetBytesKV(key, value []byte) {
-	h.bufKV.key = append(h.bufKV.key[:0], key...)
-	normalizeHeaderKey(h.bufKV.key, h.disableNormalizing)
-	h.SetCanonical(h.bufKV.key, value)
+	h.bufKV.Key = append(h.bufKV.Key[:0], key...)
+	normalizeHeaderKey(h.bufKV.Key, h.disableNormalizing)
+	h.SetCanonical(h.bufKV.Key, value)
 }
 
 // SetCanonical sets the given 'key: value' header assuming that
