@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 )
-//updated
+
 var zeroTime time.Time
 
 var (
@@ -349,7 +349,7 @@ func (c *Cookie) ParseBytes(src []byte) error {
 		return errNoCookies
 	}
 
-	c.key = append(c.key, kv.key...)
+	c.Key = append(c.Key, kv.Key...)
 	c.value = append(c.value, kv.value...)
 
 	for s.next(kv) {
