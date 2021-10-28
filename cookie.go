@@ -357,7 +357,7 @@ func (c *Cookie) ParseBytes(src []byte) error {
 			// Case insensitive switch on first char
 			switch kv.Key[0] | 0x20 {
 			case 'm':
-				if caseInsensitiveCompare(strCookieMaxAge, kv.key) {
+				if caseInsensitiveCompare(strCookieMaxAge, kv.Key) {
 					maxAge, err := ParseUint(kv.Value)
 					if err != nil {
 						return err
@@ -366,7 +366,7 @@ func (c *Cookie) ParseBytes(src []byte) error {
 				}
 
 			case 'e': // "expires"
-				if caseInsensitiveCompare(strCookieExpires, kv.key) {
+				if caseInsensitiveCompare(strCookieExpires, kv.Key) {
 					v := b2s(kv.Value)
 					// Try the same two formats as net/http
 					// See: https://github.com/golang/go/blob/00379be17e63a5b75b3237819392d2dc3b313a27/src/net/http/cookie.go#L133-L135
@@ -382,7 +382,7 @@ func (c *Cookie) ParseBytes(src []byte) error {
 
 			case 'd': // "domain"
 				if caseInsensitiveCompare(strCookieDomain, kv.Key) {
-					c.domain = append(c.domain, kv.value...)
+					c.domain = append(c.domain, kv.Value...)
 				}
 
 			case 'p': // "path"
