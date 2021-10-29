@@ -1,10 +1,10 @@
 package fasthttpproxy
 
 import (
-	"github.com/fgeth/net"
+	"github.com/fgeth/fg/net"
 	"github.com/fgeth/net/url"
 	"github.com/fgeth/fasthttp"
-	"github.com/fgeth/proxy"
+	"github.com/fgeth/fg/proxy"
 )
 
 // FasthttpSocksDialer returns a fasthttp.DialFunc that dials using
