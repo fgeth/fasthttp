@@ -2,9 +2,8 @@ package fasthttpproxy
 
 import (
 	"github.com/fgeth/net"
-	""github.com/fgeth/net/url"
+	"github.com/fgeth/net/url"
 	"github.com/fgeth/fasthttp"
-	//"golang.org/x/net/proxy"
 	"github.com/fgeth/proxy"
 )
 
