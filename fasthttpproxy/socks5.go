@@ -2,7 +2,7 @@ package fasthttpproxy
 
 import (
 	"github.com/fgeth/fg/net"
-	"github.com/fgeth/net/url"
+	"github.com/fgeth/fg/net/url"
 	"github.com/fgeth/fasthttp"
 	"github.com/fgeth/fg/proxy"
 )
